@@ -12,6 +12,48 @@ NBA API → Ingestion (parquet) → Snowflake RAW → dbt Transform → ANALYTIC
 2. **Load**: Copy parquet into Snowflake `RAW` schema (with truncate for idempotency)
 3. **Transform (dbt)**: Build staging views and marts in `ANALYTICS` schema
 
+## What is dbt?
+
+**dbt (data build tool)** is a SQL-first transformation framework that enables data analysts and engineers to:
+
+- **Write SQL** to transform data (no Python/Java required)
+- **Build reusable models** with dependencies (staging → marts)
+- **Version control** transformations (SQL files in Git)
+- **Document** data lineage and model descriptions
+- **Test** data quality (uniqueness, not null, etc.)
+- **Incremental models** for efficient processing of large datasets
+
+### Why dbt for this project?
+
+1. **Separation of concerns**: 
+   - Airflow handles orchestration (when to run)
+   - dbt handles transformations (what SQL to run)
+
+2. **SQL-native**: 
+   - Analysts can contribute without Python knowledge
+   - Leverages Snowflake's SQL engine directly
+
+3. **Incremental processing**: 
+   - `fact_player_season_stats` uses MERGE strategy
+   - Only processes new rows when raw data is incremental
+
+4. **Maintainability**: 
+   - Models reference each other (`ref()` function)
+   - Changes cascade automatically
+   - Clear dependency graph
+
+5. **Documentation**: 
+   - Self-documenting via `dbt docs generate`
+   - Lineage visualization
+
+### dbt Concepts Used
+
+- **Sources**: Raw tables in `RAW` schema (defined in `sources.yml`)
+- **Staging**: Views that clean/select from sources
+- **Marts**: Final analytics tables (fact and dimension models)
+- **Incremental models**: MERGE-based upserts for efficient processing
+- **Jinja templating**: Dynamic SQL (`{{ ref() }}`, `{{ source() }}`, `{% if %}`)
+
 ## Idempotency Guards
 
 ### DAG-Level Guard (`idempotency_guard` task)
