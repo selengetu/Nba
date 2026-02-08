@@ -28,7 +28,7 @@ select
     round(f.ft_pct, 3) as ft_pct,
     case when f.games_played > 0 then round(f.points / f.games_played, 1) else null end as ppg,
     f.ingested_at
-from {{ ref('stg_player_season_stats') }} f
+from {{ ref('fact_player_season_stats') }} f
 join {{ ref('stg_players') }} p on f.player_id = p.player_id
 join {{ ref('stg_teams') }} t on f.team_id = t.team_id
 join {{ ref('stg_seasons') }} s on f.season_id = s.season_id

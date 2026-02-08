@@ -1,5 +1,6 @@
 from warehouse.snowflake_loader import load_parquet_to_table
 
+
 def load_dim_seasons():
     load_parquet_to_table(
         parquet_path="data/raw/seasons.parquet",
@@ -12,7 +13,8 @@ def load_dim_seasons():
             season_label STRING,
             ingested_at TIMESTAMP
         )
-        """
+        """,
+        truncate_before_load=True,  # Idempotent: full refresh, no duplicates on rerun
     )
 
 if __name__ == "__main__":

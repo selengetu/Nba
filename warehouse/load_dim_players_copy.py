@@ -23,6 +23,9 @@ def load_players_copy():
         )
     """)
 
+    # Idempotency: truncate so reruns do not duplicate rows
+    cursor.execute("TRUNCATE TABLE IF EXISTS DIM_PLAYERS")
+
     # Write parquet to temp file
     with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
         df.to_parquet(tmp.name, index=False)

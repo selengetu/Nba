@@ -25,3 +25,9 @@ models:
     marts:
       +schema: marts
       +materialized: table
+      # Incremental fact: can be switched to full refresh with --full-refresh flag
+      fact_player_season_stats:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +unique_key: ['player_id', 'season_id', 'team_id']
+        +cluster_by: ['season_id']  # Snowflake clustering for partition-like behavior

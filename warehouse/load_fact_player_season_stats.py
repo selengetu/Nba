@@ -1,5 +1,6 @@
 from warehouse.snowflake_loader import load_parquet_to_table
 
+
 def load_fact_player_season_stats():
     load_parquet_to_table(
         parquet_path="data/raw/player_season_stats.parquet",
@@ -22,7 +23,8 @@ def load_fact_player_season_stats():
             ft_pct FLOAT,
             ingested_at TIMESTAMP
         )
-        """
+        """,
+        truncate_before_load=True,  # Idempotent: full refresh, no duplicates on rerun
     )
 
 if __name__ == "__main__":
