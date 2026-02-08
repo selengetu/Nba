@@ -86,6 +86,16 @@ with DAG(
         """,
     )
 
+    # ---------- TRANSFORM (dbt) ----------
+    dbt_run = BashOperator(
+        task_id="dbt_run",
+        bash_command=f"""
+        cd {PROJECT_DIR}/dbt_nba &&
+        dbt deps 2>/dev/null || true &&
+        dbt run --profiles-dir .
+        """,
+    )
+
     # ---------- DEPENDENCIES ----------
     [fetch_players, fetch_teams] >> fetch_player_season_stats >> fetch_seasons
 
@@ -93,3 +103,5 @@ with DAG(
     fetch_teams >> load_dim_teams
     fetch_seasons >> load_dim_seasons
     fetch_player_season_stats >> load_fact_player_season_stats
+
+    [load_dim_players, load_dim_teams, load_dim_seasons, load_fact_player_season_stats] >> dbt_run

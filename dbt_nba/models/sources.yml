@@ -1,0 +1,15 @@
+# Raw tables loaded by Airflow (warehouse load_* tasks) in RAW schema
+version: 2
+sources:
+  - name: raw
+    database: "{{ env_var('SNOWFLAKE_DATABASE', 'NBA') }}"
+    schema: "{{ env_var('SNOWFLAKE_SCHEMA', 'RAW') }}"
+    tables:
+      - name: dim_players
+        identifier: DIM_PLAYERS
+      - name: dim_teams
+        identifier: DIM_TEAMS
+      - name: dim_seasons
+        identifier: DIM_SEASONS
+      - name: fact_player_season_stats
+        identifier: FACT_PLAYER_SEASON_STATS

@@ -2,8 +2,9 @@ import os
 import snowflake.connector
 from dotenv import load_dotenv
 
-# Loads .env from current working directory (project root)
-load_dotenv()
+# Load .env from project root (so it works when Airflow runs from any cwd)
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(_project_root, ".env"))
 
 def get_snowflake_conn():
     required_env_vars = ["SNOWFLAKE_USER", "SNOWFLAKE_PASSWORD", "SNOWFLAKE_ACCOUNT"]
