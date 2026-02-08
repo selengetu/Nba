@@ -12,37 +12,30 @@ services:
 
   airflow-webserver:
     image: apache/airflow:2.8.4
-    depends_on:
-      - postgres
-    env_file:               # 👈 ADD THIS
+    env_file:
       - .env
     environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      _PIP_ADDITIONAL_REQUIREMENTS: -r /requirements.txt
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/plugins:/opt/airflow/plugins
       - .:/opt/airflow/nba_project
+      - ./requirements.txt:/requirements.txt
     ports:
       - "8080:8080"
     command: webserver
 
   airflow-scheduler:
     image: apache/airflow:2.8.4
-    depends_on:
-      - postgres
-    env_file:               # 👈 ADD THIS
+    env_file:
       - .env
     environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      _PIP_ADDITIONAL_REQUIREMENTS: -r /requirements.txt
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/plugins:/opt/airflow/plugins
       - .:/opt/airflow/nba_project
+      - ./requirements.txt:/requirements.txt
     command: scheduler
 
 volumes:

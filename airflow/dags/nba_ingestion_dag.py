@@ -3,7 +3,6 @@ from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
 
 PROJECT_DIR = "/opt/airflow/nba_project"
-VENV_ACTIVATE = f"{PROJECT_DIR}/.venv/bin/activate"
 
 default_args = {
     "owner": "selengetulga",
@@ -15,7 +14,7 @@ default_args = {
 with DAG(
     dag_id="nba_ingestion_pipeline",
     default_args=default_args,
-    schedule_interval="0 6 * * *",
+    schedule="0 6 * * *",
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["nba", "data-engineering"],
@@ -26,7 +25,6 @@ with DAG(
         task_id="fetch_dim_players",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
         python -m ingestion.fetch_players
         """,
     )
@@ -35,7 +33,6 @@ with DAG(
         task_id="fetch_dim_teams",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
         python -m ingestion.fetch_teams
         """,
     )
@@ -44,7 +41,6 @@ with DAG(
         task_id="fetch_fact_player_season_stats",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
         python -m ingestion.fetch_player_season_stats
         """,
     )
@@ -53,7 +49,6 @@ with DAG(
         task_id="fetch_dim_seasons",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
         python -m ingestion.fetch_seasons
         """,
     )
@@ -63,7 +58,6 @@ with DAG(
         task_id="load_dim_players",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
         python -m warehouse.load_dim_players_copy
         """,
     )
@@ -72,8 +66,7 @@ with DAG(
         task_id="load_dim_teams",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
-        python -m warehouse.load_dim_teams_copy
+        python -m warehouse.load_dim_teams
         """,
     )
 
@@ -81,8 +74,7 @@ with DAG(
         task_id="load_dim_seasons",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
-        python -m warehouse.load_dim_seasons_copy
+        python -m warehouse.load_dim_seasons
         """,
     )
 
@@ -90,8 +82,7 @@ with DAG(
         task_id="load_fact_player_season_stats",
         bash_command=f"""
         cd {PROJECT_DIR} &&
-        source {VENV_ACTIVATE} &&
-        python -m warehouse.load_fact_player_season_stats_copy
+        python -m warehouse.load_fact_player_season_stats
         """,
     )
 

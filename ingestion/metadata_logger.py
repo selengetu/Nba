@@ -1,6 +1,8 @@
 from datetime import datetime
-import pandas as pd
 import os
+from typing import Optional
+
+import pandas as pd
 
 METADATA_PATH = "data/metadata/ingestion_metadata.parquet"
 
@@ -10,7 +12,7 @@ def log_ingestion_run(
     entity_name: str,
     row_count: int,
     status: str,
-    error_message: str | None = None,
+    error_message: Optional[str] = None,
 ):
     record = {
         "pipeline_name": pipeline_name,

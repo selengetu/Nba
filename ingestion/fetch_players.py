@@ -56,24 +56,20 @@ if __name__ == "__main__":
         df.to_parquet("data/raw/players.parquet", index=False)
 
         log_ingestion_run(
-            dag_id=DAG_ID,
-            task_id=TASK_ID,
-            status="SUCCESS",
+            pipeline_name=DAG_ID,
+            entity_name=TASK_ID,
             row_count=len(df),
-            started_at=started_at,
-            finished_at=datetime.utcnow(),
+            status="SUCCESS",
         )
 
         print(f"Ingested {len(df)} players")
 
     except Exception as e:
         log_ingestion_run(
-            dag_id=DAG_ID,
-            task_id=TASK_ID,
-            status="FAILED",
+            pipeline_name=DAG_ID,
+            entity_name=TASK_ID,
             row_count=0,
-            started_at=started_at,
-            finished_at=datetime.utcnow(),
+            status="FAILED",
             error_message=str(e),
         )
         raise
