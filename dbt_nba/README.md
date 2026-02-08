@@ -130,6 +130,73 @@ password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
 - **`active_players`** (table)
   - Convenience mart: current active players only
 
+## Data quality (dbt tests)
+
+Data quality is enforced with **dbt tests** defined in `models/staging/schema.yml` and `models/marts/schema.yml`.
+
+### Test types used
+
+| Test | Purpose |
+|------|--------|
+| **unique** | Column has no duplicates (e.g. primary keys). |
+| **not_null** | Column has no nulls. |
+| **relationships** | Referential integrity: values in this column exist in the referenced model (e.g. `stg_player_season_stats.player_id` → `stg_players.player_id`). |
+
+### What is tested
+
+- **Staging**: `player_id`, `team_id`, `season_id` unique and not null on dims; fact FKs not null and valid via `relationships` to staging.
+- **Marts**: Key columns not null; `active_players.player_id` unique.
+
+### Run tests
+
+```bash
+cd dbt_nba
+export DBT_PROFILES_DIR=.
+dbt test                    # Run all tests
+dbt test --select stg_players   # Tests for one model
+dbt test --select test_type:unique   # Only unique tests
+```
+
+Tests run as SQL (e.g. `select count(*)` for duplicates). Failures show which model/column failed. Add tests to a model by adding a `columns` block and `tests:` in the relevant `schema.yml`.
+
+## Documentation
+
+dbt can generate **lineage and docs** from your project and the warehouse.
+
+### Generate and view docs
+
+1. **Generate** the docs (reads your project + Snowflake catalog):
+   ```bash
+   cd dbt_nba
+   export DBT_PROFILES_DIR=.
+   dbt docs generate
+   ```
+   This creates `target/index.html` and a manifest/catalog.
+
+2. **Serve** the docs in the browser:
+   ```bash
+   dbt docs serve
+   ```
+   Opens a local site (default http://localhost:8080) with:
+   - **Lineage graph**: DAG of models and sources
+   - **Model/source details**: Descriptions, columns, tests, SQL
+   - **Catalog**: Column types and row counts (from Snowflake)
+
+3. **One-shot** (generate then serve):
+   ```bash
+   dbt docs generate && dbt docs serve
+   ```
+
+### What to document
+
+- **sources.yml** / **schema.yml**: `description` on sources, models, and columns (already added in this project).
+- **Model SQL**: The first comment in a model file can describe the model; descriptions in YAML take precedence for the docs site.
+
+### In CI or Airflow
+
+- Run `dbt docs generate` in CI and publish the `target/` output (e.g. to S3 or GitHub Pages) for a static docs site.
+- Optionally run `dbt docs serve` in the background when developing locally; the DAG does not need to run docs.
+
 ## Usage
 
 ### Run Locally
@@ -193,13 +260,15 @@ dbt_nba/
 ├── dbt_project.yml          # Project config
 ├── profiles.yml             # Snowflake connection (env vars)
 ├── models/
-│   ├── sources.yml          # Raw table definitions
+│   ├── sources.yml          # Raw table definitions + descriptions
 │   ├── staging/             # Views on raw
+│   │   ├── schema.yml       # Staging model docs + data quality tests
 │   │   ├── stg_players.sql
 │   │   ├── stg_teams.sql
 │   │   ├── stg_seasons.sql
 │   │   └── stg_player_season_stats.sql
 │   └── marts/               # Analytics tables
+│       ├── schema.yml       # Mart model docs + data quality tests
 │       ├── fact_player_season_stats.sql  # Incremental
 │       ├── player_season_performance.sql
 │       ├── active_players.sql

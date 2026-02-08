@@ -1,0 +1,31 @@
+version: 2
+models:
+  - name: fact_player_season_stats
+    description: Incremental fact table. One row per player-season-team. MERGE on (player_id, season_id, team_id).
+    columns:
+      - name: player_id
+        tests: [not_null]
+      - name: season_id
+        tests: [not_null]
+      - name: team_id
+        tests: [not_null]
+      - name: ingested_at
+        tests: [not_null]
+
+  - name: player_season_performance
+    description: Analytics-ready mart. Player season stats with player, team, and season labels; includes PPG.
+    columns:
+      - name: player_id
+        tests: [not_null]
+      - name: season_id
+        tests: [not_null]
+      - name: team_id
+        tests: [not_null]
+      - name: ppg
+        description: Points per game (points / games_played).
+
+  - name: active_players
+    description: Subset of players where is_active = 1. Convenience mart for reporting.
+    columns:
+      - name: player_id
+        tests: [unique, not_null]

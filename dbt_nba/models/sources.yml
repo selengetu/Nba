@@ -2,14 +2,19 @@
 version: 2
 sources:
   - name: raw
+    description: Raw tables loaded from parquet by Airflow (truncate + copy). Idempotent per run.
     database: "{{ env_var('SNOWFLAKE_DATABASE', 'NBA') }}"
     schema: "{{ env_var('SNOWFLAKE_SCHEMA', 'RAW') }}"
     tables:
       - name: dim_players
         identifier: DIM_PLAYERS
+        description: All NBA players (current and historical) from CommonAllPlayers.
       - name: dim_teams
         identifier: DIM_TEAMS
+        description: NBA teams from nba_api teams endpoint.
       - name: dim_seasons
         identifier: DIM_SEASONS
+        description: Season dimension (e.g. 2023-24).
       - name: fact_player_season_stats
         identifier: FACT_PLAYER_SEASON_STATS
+        description: Player career stats by season (from PlayerCareerStats). Grain: player_id, season_id, team_id.
