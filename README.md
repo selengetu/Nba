@@ -152,4 +152,17 @@ dbt is invoked from the Airflow DAG task `transform.dbt_run`. See `dbt_nba/READM
 
 ---
 
+## 📋 Data Governance
+
+Data governance is implemented across **catalog**, **lineage**, **quality**, **ownership**, and **policies**:
+
+- **Catalog & lineage**: dbt docs (`dbt docs generate && dbt docs serve`), YAML descriptions, ingestion metadata.
+- **Quality**: Ingestion checks (`ingestion/data_quality.py`) and dbt tests (`dbt test`).
+- **Ownership**: dbt `meta` (owner, tier) and Airflow DAG owner; see generated docs.
+- **Policies**: Naming (dim/fact/stg), SLAs on tasks, idempotency (guard + truncate-reload).
+
+See **[docs/DATA_GOVERNANCE.md](docs/DATA_GOVERNANCE.md)** for the full governance guide and how to extend it (Snowflake access, retention, runbooks).
+
+---
+
 

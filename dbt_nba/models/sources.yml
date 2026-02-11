@@ -3,6 +3,9 @@ version: 2
 sources:
   - name: raw
     description: Raw tables loaded from parquet by Airflow (truncate + copy). Idempotent per run.
+    meta:
+      owner: data-engineering
+      tier: bronze
     database: "{{ env_var('SNOWFLAKE_DATABASE', 'NBA') }}"
     schema: "{{ env_var('SNOWFLAKE_SCHEMA', 'RAW') }}"
     tables:

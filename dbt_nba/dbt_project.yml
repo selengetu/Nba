@@ -19,12 +19,19 @@ clean-targets:
 
 models:
   nba:
+    +meta:
+      owner: data-engineering
+      tier: bronze  # raw/staging = bronze; marts = silver/gold
     staging:
       +schema: staging
       +materialized: view
+      +meta:
+        tier: bronze
     marts:
       +schema: marts
       +materialized: table
+      +meta:
+        tier: silver
       # Incremental fact: can be switched to full refresh with --full-refresh flag
       fact_player_season_stats:
         +materialized: incremental
