@@ -18,5 +18,5 @@ select
     fg_pct,
     fg3_pct,
     ft_pct,
-    ingested_at
+    {{ cast_ingested_at('ingested_at') }} as ingested_at
 from {{ source('raw', 'fact_player_season_stats') }}

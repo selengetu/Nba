@@ -10,5 +10,5 @@ select
     abbreviation,
     nickname,
     year_founded,
-    ingested_at
+    {{ cast_ingested_at('ingested_at') }} as ingested_at
 from {{ source('raw', 'dim_teams') }}

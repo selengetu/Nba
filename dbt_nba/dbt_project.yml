@@ -32,9 +32,30 @@ models:
       +materialized: table
       +meta:
         tier: silver
-      # Incremental fact: can be switched to full refresh with --full-refresh flag
+      # Incremental models: MERGE strategy; full refresh with --full-refresh when needed
+      dim_players:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +unique_key: player_id
+      dim_teams:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +unique_key: team_id
+      dim_seasons:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +unique_key: season_id
       fact_player_season_stats:
         +materialized: incremental
         +incremental_strategy: merge
         +unique_key: ['player_id', 'season_id', 'team_id']
-        +cluster_by: ['season_id']  # Snowflake clustering for partition-like behavior
+        +cluster_by: ['season_id']
+      player_season_performance:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +unique_key: ['player_id', 'season_id', 'team_id']
+        +cluster_by: ['season_id']
+      active_players:
+        +materialized: incremental
+        +incremental_strategy: merge
+        +unique_key: player_id

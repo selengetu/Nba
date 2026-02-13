@@ -23,10 +23,5 @@ select
     fg_pct,
     fg3_pct,
     ft_pct,
-    ingested_at
+    {{ cast_ingested_at('ingested_at') }} as ingested_at
 from {{ ref('stg_player_season_stats') }}
-
-{% if is_incremental() %}
-    -- Only process rows newer than the max ingested_at in the current table
-    where ingested_at > (select max(ingested_at) from {{ this }})
-{% endif %}

@@ -1,5 +1,29 @@
 version: 2
 models:
+  - name: dim_players
+    description: Dimension table for players. Incremental merge on player_id; only new/changed rows by ingested_at.
+    columns:
+      - name: player_id
+        tests: [unique, not_null]
+      - name: ingested_at
+        tests: [not_null]
+
+  - name: dim_teams
+    description: Dimension table for teams. Incremental merge on team_id.
+    columns:
+      - name: team_id
+        tests: [unique, not_null]
+      - name: ingested_at
+        tests: [not_null]
+
+  - name: dim_seasons
+    description: Dimension table for seasons. Incremental merge on season_id.
+    columns:
+      - name: season_id
+        tests: [unique, not_null]
+      - name: ingested_at
+        tests: [not_null]
+
   - name: fact_player_season_stats
     description: Incremental fact table. One row per player-season-team. MERGE on (player_id, season_id, team_id).
     columns:
@@ -13,7 +37,7 @@ models:
         tests: [not_null]
 
   - name: player_season_performance
-    description: Analytics-ready mart. Player season stats with player, team, and season labels; includes PPG.
+    description: Analytics-ready mart. Player season stats with player, team, and season labels; includes PPG. Incremental merge on (player_id, season_id, team_id).
     columns:
       - name: player_id
         tests: [not_null]
@@ -25,7 +49,7 @@ models:
         description: Points per game (points / games_played).
 
   - name: active_players
-    description: Subset of players where is_active = 1. Convenience mart for reporting.
+    description: Subset of players where is_active = 1. Incremental merge on player_id. Convenience mart for reporting.
     columns:
       - name: player_id
         tests: [unique, not_null]

@@ -20,5 +20,6 @@ def get_snowflake_conn():
         database=os.getenv("SNOWFLAKE_DATABASE", "NBA"),
         schema=os.getenv("SNOWFLAKE_SCHEMA", "RAW"),
         role=os.getenv("SNOWFLAKE_ROLE", "ACCOUNTADMIN"),
+        connection_timeout=15,
         session_parameters={"QUERY_TAG": "nba_pipeline_local"},
     )

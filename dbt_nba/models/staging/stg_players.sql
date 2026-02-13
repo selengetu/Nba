@@ -10,5 +10,5 @@ select
     from_year,
     to_year,
     is_active,
-    ingested_at
+    {{ cast_ingested_at('ingested_at') }} as ingested_at
 from {{ source('raw', 'dim_players') }}

@@ -31,7 +31,7 @@ def derive_seasons(player_season_stats_path: str) -> pd.DataFrame:
         + seasons["season_end_year"].astype(str)
     )
 
-    seasons["ingested_at"] = datetime.utcnow()
+    seasons["ingested_at"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     return seasons
 
 

@@ -1,31 +1,44 @@
 # Marts
 
+All mart tables are **incremental** (MERGE strategy). Only new/changed rows (by `ingested_at`) are processed after the first run.
+
+## Dimension tables (incremental)
+
+| Model | Unique key | Source | Incremental filter |
+|-------|------------|--------|--------------------|
+| **dim_players** | player_id | stg_players | ingested_at > max(ingested_at) |
+| **dim_teams** | team_id | stg_teams | ingested_at > max(ingested_at) |
+| **dim_seasons** | season_id | stg_seasons | ingested_at > max(ingested_at) |
+
 ## fact_player_season_stats
 
-**Incremental model** that reads from `stg_player_season_stats` and only processes new rows based on `ingested_at`.
+**Incremental fact** from `stg_player_season_stats`. MERGE on `(player_id`, `season_id`, `team_id)`. Clustered by `season_id`.
 
-- **Strategy**: MERGE (upsert on `player_id`, `season_id`, `team_id`)
-- **Partition/cluster**: By `season_id` for query performance
-- **Incremental logic**: Only rows where `ingested_at > max(ingested_at)` in the current table
+## player_season_performance
 
-### Usage
+**Incremental** analytics mart. Joins `fact_player_season_stats` with `dim_players`, `dim_teams`, `dim_seasons`. MERGE on `(player_id`, `season_id`, `team_id)`. Includes PPG.
+
+## active_players
+
+**Incremental** subset of `dim_players` where `is_active = '1'`. MERGE on `player_id`.
+
+---
+
+### Running incremental models
 
 **Incremental (default):**
 ```bash
-dbt run --select fact_player_season_stats
+dbt run
 ```
 
-**Full refresh (when needed):**
+**Full refresh (all models or one):**
 ```bash
+dbt run --full-refresh
 dbt run --select fact_player_season_stats --full-refresh
 ```
 
 ### When to use full refresh
 
+- First run (tables don't exist)
 - Schema changes (new columns)
-- Data quality issues requiring reprocessing
-- First run (table doesn't exist yet)
-
-## player_season_performance
-
-Analytics-ready table joining fact with dims (players, teams, seasons). Reads from `fact_player_season_stats` (the incremental fact).
+- Data quality issues requiring full reprocessing

@@ -137,6 +137,32 @@ transform: dbt_run
 - **Idempotent loads**: Each load runs `TRUNCATE TABLE` before `COPY INTO`, so reruns do not create duplicate rows (full refresh per run).
 - Snowflake connection is managed via environment variables (`.env`).
 
+### Reset all tables and re-load raw only
+
+To drop every pipeline object in Snowflake (RAW tables + dbt staging/marts) and then repopulate only raw tables to verify `ingested_at`:
+
+1. **Load env** (from project root):  
+   `set -a && source .env && set +a`
+
+2. **Drop all Snowflake objects**:  
+   `python -m warehouse.drop_all_snowflake_objects`
+
+3. **Run ingestion** (writes parquet to `data/raw/`):  
+   `python -m ingestion.fetch_players`  
+   `python -m ingestion.fetch_teams`  
+   `python -m ingestion.fetch_player_season_stats`  
+   `python -m ingestion.fetch_seasons`  
+   (Or run the full DAG and stop after the **load** task group.)
+
+4. **Run load** (copy parquet into Snowflake RAW):  
+   `python -m warehouse.load_dim_players_copy`  
+   `python -m warehouse.load_dim_teams`  
+   `python -m warehouse.load_dim_seasons`  
+   `python -m warehouse.load_fact_player_season_stats`
+
+5. **Verify `ingested_at` in raw**:  
+   `python -m warehouse.verify_raw_ingested_at`
+
 ---
 
 ## 📐 dbt (Transform Layer)

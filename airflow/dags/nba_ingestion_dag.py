@@ -59,7 +59,7 @@ with DAG(
     dag_id="nba_ingestion_pipeline",
     default_args=default_args,
     schedule="0 6 * * *",
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2026, 1, 1),
     catchup=False,
     max_active_runs=1,  # Idempotency: only one run at a time, no overlapping execution
     tags=["nba", "data-engineering"],

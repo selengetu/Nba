@@ -32,7 +32,7 @@ def fetch_player_season_stats(player_ids):
 
         df = df.dropna(axis=1, how="all")  # prevent future concat issues
         df["player_id"] = player_id
-        df["ingested_at"] = datetime.utcnow()
+        df["ingested_at"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
         all_stats.append(df)
 

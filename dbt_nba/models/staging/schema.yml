@@ -44,7 +44,7 @@ models:
       - name: ingested_at
 
   - name: stg_player_season_stats
-    description: Staging view of raw player-season stats. Grain: player_id, season_id, team_id.
+    description: "Staging view of raw player-season stats. Grain is player_id, season_id, team_id."
     columns:
       - name: player_id
         description: FK to players.

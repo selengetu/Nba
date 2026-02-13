@@ -37,7 +37,7 @@ def fetch_players():
         ]
     ]
 
-    df["ingested_at"] = datetime.utcnow()
+    df["ingested_at"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     return df
 
 
