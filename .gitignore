@@ -18,3 +18,5 @@ airflow/logs/
 target/
 dbt_packages/
 logs/
+
+profiles.yml
