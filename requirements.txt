@@ -1,5 +1,6 @@
 nba_api
 pandas
 pyarrow
-snowflake-connector-python
-dbt-snowflake>=1.7.0,<2
+python-dotenv
+duckdb
+dbt-duckdb>=1.7.0,<2

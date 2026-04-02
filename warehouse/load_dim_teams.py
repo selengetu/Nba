@@ -8,10 +8,10 @@ def load_dim_teams():
         create_table_sql="""
         CREATE TABLE IF NOT EXISTS DIM_TEAMS (
             team_id INTEGER,
-            team_name STRING,
-            city STRING,
-            abbreviation STRING,
-            nickname STRING,
+            team_name VARCHAR,
+            city VARCHAR,
+            abbreviation VARCHAR,
+            nickname VARCHAR,
             year_founded INTEGER,
             ingested_at TIMESTAMP
         )

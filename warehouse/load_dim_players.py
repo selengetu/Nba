@@ -1,32 +1,25 @@
-import pandas as pd
-from warehouse.snowflake_client import get_snowflake_conn
+from warehouse.snowflake_loader import load_parquet_to_table
 
 
 def load_players():
-    df = pd.read_parquet("data/raw/players.parquet")
-
-    conn = get_snowflake_conn()
-    cursor = conn.cursor()
-
-    cursor.execute("""
+    load_parquet_to_table(
+        parquet_path="data/raw/players.parquet",
+        table_name="DIM_PLAYERS",
+        create_table_sql="""
         CREATE TABLE IF NOT EXISTS DIM_PLAYERS (
             player_id INTEGER,
-            full_name STRING,
-            player_slug STRING,
+            full_name VARCHAR,
+            player_slug VARCHAR,
             from_year INTEGER,
             to_year INTEGER,
-            is_active STRING,
+            is_active VARCHAR,
             ingested_at TIMESTAMP
         )
-    """)
+        """,
+        truncate_before_load=True,
+    )
 
-    for _, row in df.iterrows():
-        cursor.execute(
-            """
-            INSERT INTO DIM_PLAYERS VALUES (%s,%s,%s,%s,%s,%s,%s)
-            """,
-            tuple(row),
-        )
 
-    cursor.close()
-    conn.close()
+if __name__ == "__main__":
+    load_players()
+    print("DIM_PLAYERS loaded")

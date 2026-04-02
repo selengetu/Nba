@@ -7,10 +7,10 @@ def load_dim_seasons():
         table_name="DIM_SEASONS",
         create_table_sql="""
         CREATE TABLE IF NOT EXISTS DIM_SEASONS (
-            season_id STRING,
+            season_id VARCHAR,
             season_start_year INTEGER,
             season_end_year INTEGER,
-            season_label STRING,
+            season_label VARCHAR,
             ingested_at TIMESTAMP
         )
         """,

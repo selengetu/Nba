@@ -1,5 +1,6 @@
-from warehouse.snowflake_client import get_snowflake_conn
+from warehouse.snowflake_client import get_conn
 from datetime import datetime
+
 
 def log_ingestion(
     table_name: str,
@@ -7,26 +8,23 @@ def log_ingestion(
     status: str,
     error: str = None,
 ):
-    conn = get_snowflake_conn()
-    cur = conn.cursor()
+    conn = get_conn()
+    try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS INGESTION_METADATA (
+                table_name VARCHAR,
+                row_count INTEGER,
+                status VARCHAR,
+                error VARCHAR,
+                ingested_at TIMESTAMP
+            )
+        """)
 
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS INGESTION_METADATA (
-            table_name STRING,
-            row_count INTEGER,
-            status STRING,
-            error STRING,
-            ingested_at TIMESTAMP
+        conn.execute(
+            """
+            INSERT INTO INGESTION_METADATA VALUES (?, ?, ?, ?, ?)
+            """,
+            (table_name, row_count, status, error, datetime.utcnow()),
         )
-    """)
-
-    cur.execute(
-        """
-        INSERT INTO INGESTION_METADATA
-        VALUES (%s, %s, %s, %s, %s)
-        """,
-        (table_name, row_count, status, error, datetime.utcnow()),
-    )
-
-    cur.close()
-    conn.close()
+    finally:
+        conn.close()

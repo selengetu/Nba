@@ -1,15 +1,9 @@
-# Uses same env vars as warehouse (SNOWFLAKE_*). Run from project root or set DBT_PROFILES_DIR.
-# In Airflow: env is passed from .env; run from /opt/airflow/nba_project.
+# Uses MOTHERDUCK_TOKEN env var. Run from project root or set DBT_PROFILES_DIR.
 nba:
   target: prod
   outputs:
     prod:
-      type: snowflake
-      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-      user: "{{ env_var('SNOWFLAKE_USER') }}"
-      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
-      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}"
-      database: "{{ env_var('SNOWFLAKE_DATABASE', 'NBA') }}"
-      schema: "{{ env_var('DBT_TARGET_SCHEMA', 'ANALYTICS') }}"
-      role: "{{ env_var('SNOWFLAKE_ROLE', 'ACCOUNTADMIN') }}"
+      type: duckdb
+      path: "md:{{ env_var('MOTHERDUCK_DATABASE', 'nba') }}"
+      schema: "{{ env_var('DBT_TARGET_SCHEMA', 'analytics') }}"
       threads: 4

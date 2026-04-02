@@ -1,11 +1,5 @@
-FROM apache/airflow:2.8.4
+FROM apache/airflow:2.8.4-python3.11
 
-# Switch to airflow user (IMPORTANT)
 USER airflow
-
-# Install Python dependencies required by your DAGs
-RUN pip install --no-cache-dir \
-    nba_api \
-    pandas \
-    pyarrow \
-    snowflake-connector-python
+COPY requirements.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
