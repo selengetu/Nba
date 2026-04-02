@@ -2,7 +2,7 @@
 
 This project is a **production-style end-to-end data pipeline** that ingests NBA data from public APIs, applies data quality checks, orchestrates workflows with Apache Airflow, loads data into MotherDuck (DuckDB), and transforms it for analytics using dbt.
 
-The focus is on **real-world Data Engineering practices**, not a toy demo.
+The focus is on **real-world Data Engineering practices**
 
 ---
 
