@@ -104,7 +104,7 @@ with DAG(
         load_dim_players = PythonOperator(
             task_id="load_dim_players",
             python_callable=run_python_module,
-            op_kwargs={"module_name": "warehouse.load_dim_players_copy"},
+            op_kwargs={"module_name": "warehouse.load_dim_players"},
             sla=timedelta(minutes=15),
         )
         load_dim_teams = PythonOperator(
