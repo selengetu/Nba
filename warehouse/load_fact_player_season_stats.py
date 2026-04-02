@@ -4,9 +4,9 @@ from warehouse.snowflake_loader import load_parquet_to_table
 def load_fact_player_season_stats():
     load_parquet_to_table(
         parquet_path="data/raw/player_season_stats.parquet",
-        table_name="FACT_PLAYER_SEASON_STATS",
+        table_name="RAW.FACT_PLAYER_SEASON_STATS",
         create_table_sql="""
-        CREATE TABLE IF NOT EXISTS FACT_PLAYER_SEASON_STATS (
+        CREATE TABLE IF NOT EXISTS RAW.FACT_PLAYER_SEASON_STATS (
             player_id INTEGER,
             season_id VARCHAR,
             team_id INTEGER,

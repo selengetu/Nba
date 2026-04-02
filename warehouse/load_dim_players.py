@@ -4,9 +4,9 @@ from warehouse.snowflake_loader import load_parquet_to_table
 def load_players():
     load_parquet_to_table(
         parquet_path="data/raw/players.parquet",
-        table_name="DIM_PLAYERS",
+        table_name="RAW.DIM_PLAYERS",
         create_table_sql="""
-        CREATE TABLE IF NOT EXISTS DIM_PLAYERS (
+        CREATE TABLE IF NOT EXISTS RAW.DIM_PLAYERS (
             player_id INTEGER,
             full_name VARCHAR,
             player_slug VARCHAR,

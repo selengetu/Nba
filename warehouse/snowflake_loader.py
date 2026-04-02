@@ -13,12 +13,22 @@ def load_parquet_to_table(
     """
     conn = get_conn()
     try:
-        conn.execute(create_table_sql)
-        if truncate_before_load:
-            conn.execute(f"DELETE FROM {table_name}")
         abs_path = os.path.abspath(parquet_path)
+        schema = table_name.split(".")[0] if "." in table_name else None
+        if schema:
+            conn.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
+        if truncate_before_load:
+            # Drop and recreate to ensure schema is always up to date
+            conn.execute(f"DROP TABLE IF EXISTS {table_name}")
+        conn.execute(create_table_sql)
+        # Use explicit column list from parquet for name-based (not positional) mapping
+        cols = conn.execute(
+            f"SELECT * FROM read_parquet(?) LIMIT 0", [abs_path]
+        ).description
+        col_list = ", ".join(f'"{c[0]}"' for c in cols)
         conn.execute(
-            f"INSERT INTO {table_name} SELECT * FROM read_parquet(?)", [abs_path]
+            f"INSERT INTO {table_name} ({col_list}) SELECT {col_list} FROM read_parquet(?)",
+            [abs_path],
         )
     finally:
         conn.close()

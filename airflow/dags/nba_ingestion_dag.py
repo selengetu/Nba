@@ -135,7 +135,7 @@ with DAG(
             bash_command=f"""
             cd {PROJECT_DIR}/dbt_nba &&
             dbt deps 2>/dev/null || true &&
-            dbt run --profiles-dir .
+            dbt run --profiles-dir . --no-partial-parse
             """,
             sla=timedelta(minutes=30),  # dbt can take time with multiple models
         )
