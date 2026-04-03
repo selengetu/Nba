@@ -36,6 +36,27 @@ models:
       - name: ingested_at
         tests: [not_null]
 
+  - name: dim_arenas
+    description: Arena and front-office info per team. Incremental merge on team_id.
+    columns:
+      - name: team_id
+        tests: [unique, not_null]
+      - name: arena_name
+      - name: arena_capacity
+      - name: ingested_at
+        tests: [not_null]
+
+  - name: dim_draft
+    description: NBA draft history. One row per drafted player. Incremental merge on player_id.
+    columns:
+      - name: player_id
+        tests: [unique, not_null]
+      - name: draft_year
+      - name: overall_pick
+      - name: team_id
+      - name: ingested_at
+        tests: [not_null]
+
   - name: player_season_performance
     description: Analytics-ready mart. Player season stats with player, team, and season labels; includes PPG. Incremental merge on (player_id, season_id, team_id).
     columns:

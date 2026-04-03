@@ -21,3 +21,9 @@ sources:
       - name: fact_player_season_stats
         identifier: FACT_PLAYER_SEASON_STATS
         description: "Player career stats by season (from PlayerCareerStats). Grain is player_id, season_id, team_id."
+      - name: dim_arenas
+        identifier: DIM_ARENAS
+        description: Arena and front-office info per team from TeamDetails endpoint.
+      - name: dim_draft
+        identifier: DIM_DRAFT
+        description: Full NBA draft history from DraftHistory endpoint. One row per drafted player.

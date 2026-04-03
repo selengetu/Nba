@@ -43,6 +43,41 @@ models:
       - name: season_label
       - name: ingested_at
 
+  - name: stg_arenas
+    description: Staging view of arena and front-office info per team.
+    columns:
+      - name: team_id
+        description: FK to teams.
+        tests: [unique, not_null]
+      - name: arena_name
+      - name: arena_capacity
+      - name: owner
+      - name: general_manager
+      - name: head_coach
+      - name: dleague_affiliation
+      - name: ingested_at
+
+  - name: stg_draft
+    description: Staging view of NBA draft history. One row per drafted player.
+    columns:
+      - name: player_id
+        description: Primary key. NBA person ID.
+        tests: [unique, not_null]
+      - name: player_name
+      - name: draft_year
+      - name: round_number
+      - name: round_pick
+      - name: overall_pick
+      - name: draft_type
+      - name: team_id
+      - name: team_city
+      - name: team_name
+      - name: team_abbreviation
+      - name: organization
+      - name: organization_type
+      - name: has_profile
+      - name: ingested_at
+
   - name: stg_player_season_stats
     description: "Staging view of raw player-season stats. Grain is player_id, season_id, team_id."
     columns:

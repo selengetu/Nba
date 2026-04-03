@@ -48,6 +48,8 @@ NBA data is ingested using the official `nba_api` Python package.
 - `CommonAllPlayers` → Players dimension
 - `teams.get_teams()` → Teams dimension
 - `PlayerCareerStats` → Player season statistics (fact table)
+- `TeamDetails` → Arenas dimension (arena name, capacity, front office)
+- `DraftHistory` → Draft dimension (draft year, round, pick, drafting team)
 
 ---
 
@@ -57,6 +59,8 @@ NBA data is ingested using the official `nba_api` Python package.
 - `dim_players`
 - `dim_teams`
 - `dim_seasons`
+- `dim_arenas` — arena name, capacity, owner, GM, head coach, G-League affiliate (one row per team)
+- `dim_draft` — draft year, round, pick number, drafting team, college/org (one row per drafted player)
 
 ### Fact Table
 - `fact_player_season_stats`
@@ -119,9 +123,14 @@ To force a full re-run for the same date, clear or mark the existing successful 
 ```
 idempotency_guard
        ↓
-ingestion: fetch_dim_players, fetch_dim_teams → fetch_fact_player_season_stats → fetch_dim_seasons
+ingestion:
+  fetch_dim_players ──┐
+  fetch_dim_teams ────┴──► fetch_fact_player_season_stats ──► fetch_dim_seasons
+  fetch_dim_teams ────────► fetch_dim_arenas
+  fetch_dim_draft (independent)
        ↓
-load: load_dim_players, load_dim_teams, load_dim_seasons, load_fact_player_season_stats
+load: load_dim_players, load_dim_teams, load_dim_seasons, load_fact_player_season_stats,
+      load_dim_arenas, load_dim_draft
        ↓
 transform: dbt_run
 ```
@@ -159,6 +168,8 @@ To drop every pipeline table in MotherDuck and then repopulate only raw tables:
    python -m ingestion.fetch_teams
    python -m ingestion.fetch_player_season_stats
    python -m ingestion.fetch_seasons
+   python -m ingestion.fetch_arenas
+   python -m ingestion.fetch_draft
    ```
    (Or run the full DAG and stop after the **load** task group.)
 
@@ -168,6 +179,8 @@ To drop every pipeline table in MotherDuck and then repopulate only raw tables:
    python -m warehouse.load_dim_teams
    python -m warehouse.load_dim_seasons
    python -m warehouse.load_fact_player_season_stats
+   python -m warehouse.load_dim_arenas
+   python -m warehouse.load_dim_draft
    ```
 
 5. **Verify `ingested_at` in raw**:
@@ -181,9 +194,9 @@ To drop every pipeline table in MotherDuck and then repopulate only raw tables:
 
 - **Adapter**: `dbt-duckdb`, connecting to MotherDuck via `MOTHERDUCK_TOKEN`.
 - **Profile**: `dbt_nba/profiles.yml` — uses `type: duckdb`, path `md:<database>`.
-- **Staging**: Views in the `staging` schema (e.g. `stg_players`, `stg_teams`, `stg_player_season_stats`, `stg_seasons`).
+- **Staging**: Views in the `staging` schema (e.g. `stg_players`, `stg_teams`, `stg_player_season_stats`, `stg_seasons`, `stg_arenas`, `stg_draft`).
 - **Marts**: Incremental tables in the `marts` schema:
-  - `dim_players`, `dim_teams`, `dim_seasons` — MERGE on primary key
+  - `dim_players`, `dim_teams`, `dim_seasons`, `dim_arenas`, `dim_draft` — MERGE on primary key
   - `fact_player_season_stats` — MERGE on `(player_id, season_id, team_id)`
   - `player_season_performance`, `active_players`
 - **Incremental**: All mart models use MERGE strategy. Since raw is truncated+reloaded each run, all rows are processed on every run. Use `--full-refresh` to rebuild from scratch.

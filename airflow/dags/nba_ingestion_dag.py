@@ -96,9 +96,22 @@ with DAG(
             op_kwargs={"module_name": "ingestion.fetch_seasons"},
             sla=timedelta(minutes=5),  # Small dataset
         )
+        fetch_arenas = PythonOperator(
+            task_id="fetch_dim_arenas",
+            python_callable=run_python_module,
+            op_kwargs={"module_name": "ingestion.fetch_arenas"},
+            sla=timedelta(minutes=15),  # 30 teams × API call
+        )
+        fetch_draft = PythonOperator(
+            task_id="fetch_dim_draft",
+            python_callable=run_python_module,
+            op_kwargs={"module_name": "ingestion.fetch_draft"},
+            sla=timedelta(minutes=10),
+        )
         [fetch_players, fetch_teams] >> fetch_player_season_stats >> fetch_seasons
+        fetch_teams >> fetch_arenas
 
-    guard >> [fetch_players, fetch_teams]  # Guard must pass before any ingestion
+    guard >> [fetch_players, fetch_teams, fetch_draft]  # Guard must pass before any ingestion
 
     with TaskGroup("load", tooltip="Load raw parquet into Snowflake") as load:
         load_dim_players = PythonOperator(
@@ -125,6 +138,18 @@ with DAG(
             op_kwargs={"module_name": "warehouse.load_fact_player_season_stats"},
             sla=timedelta(minutes=20),  # Largest fact table
         )
+        load_dim_arenas = PythonOperator(
+            task_id="load_dim_arenas",
+            python_callable=run_python_module,
+            op_kwargs={"module_name": "warehouse.load_dim_arenas"},
+            sla=timedelta(minutes=10),
+        )
+        load_dim_draft = PythonOperator(
+            task_id="load_dim_draft",
+            python_callable=run_python_module,
+            op_kwargs={"module_name": "warehouse.load_dim_draft"},
+            sla=timedelta(minutes=10),
+        )
 
     with TaskGroup("transform", tooltip="dbt models (staging + marts)") as transform:
         # Note: fact_player_season_stats is incremental (MERGE strategy).
@@ -145,5 +170,14 @@ with DAG(
     fetch_teams >> load_dim_teams
     fetch_seasons >> load_dim_seasons
     fetch_player_season_stats >> load_fact_player_season_stats
+    fetch_arenas >> load_dim_arenas
+    fetch_draft >> load_dim_draft
 
-    [load_dim_players, load_dim_teams, load_dim_seasons, load_fact_player_season_stats] >> dbt_run
+    [
+        load_dim_players,
+        load_dim_teams,
+        load_dim_seasons,
+        load_fact_player_season_stats,
+        load_dim_arenas,
+        load_dim_draft,
+    ] >> dbt_run
